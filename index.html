@@ -3,125 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangman Game - Mongolia</title>
+    <title>Hangman Game with Drawing</title>
     <style>
-        body { font-family: 'Arial', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f2f5; }
-        #game-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.1); text-align: center; margin-top: 50px; width: 400px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #2c3e50; color: white; margin: 0; padding: 20px; }
+        #game-container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 450px; color: #333; }
         
-        /* Дүүжлүүрийн хэсэг */
-        #hangman-visual { font-size: 24px; margin: 20px 0; color: #e74c3c; font-weight: bold; }
+        canvas { background: #ecf0f1; border-radius: 10px; margin-bottom: 20px; border: 2px solid #bdc3c7; }
         
-        #question-display { font-style: italic; color: #555; margin-bottom: 10px; }
-        #answer-display { font-size: 32px; letter-spacing: 10px; margin: 20px 0; font-weight: bold; color: #2c3e50; }
+        #question-display { font-size: 1.2rem; font-weight: bold; color: #2980b9; margin: 10px 0; min-height: 1.5em; }
+        #answer-display { font-size: 2.5rem; letter-spacing: 12px; margin: 20px 0; font-weight: bold; color: #2c3e50; }
         
-        /* Үсгүүдийн товчлуур */
-        #letters-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 20px; }
-        button.letter-btn { padding: 10px; cursor: pointer; border: 1px solid #ddd; background: #fff; border-radius: 5px; }
-        button.letter-btn:hover { background: #3498db; color: white; }
+        #letters-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 20px; }
+        .letter-btn { padding: 12px 5px; cursor: pointer; border: none; background: #34495e; color: white; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+        .letter-btn:hover { background: #3498db; transform: translateY(-2px); }
+        .letter-btn:active { transform: translateY(0); }
         
-        #start-btn { padding: 10px 30px; font-size: 18px; cursor: pointer; background: #2ecc71; color: white; border: none; border-radius: 5px; margin-top: 20px; }
-        #start-btn:hover { background: #27ae60; }
+        #start-btn { padding: 12px 40px; font-size: 1.1rem; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 50px; margin-top: 25px; transition: 0.3s; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4); }
+        #start-btn:hover { background: #2ecc71; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <h1>Hangman Game</h1>
+    <h1>HANGMAN</h1>
     
+    <canvas id="hangmanCanvas" width="200" height="200"></canvas>
+
     <div id="game-area" style="display:none;">
         <p id="question-display"></p>
-        <div id="hangman-visual">Алдаа: <span id="mistakes">0</span> / 6</div>
         <div id="answer-display"></div>
         <div id="letters-container"></div>
     </div>
 
-    <button id="start-btn" onclick="startGame()">Тоглоом эхлэх</button>
+    <button id="start-btn" onclick="startGame()">ТОГЛООМ ЭХЛЭХ</button>
 </div>
 
 <script>
-    var questions = ['Biggest Mammal?', 'Fastest vehicle?', 'National fruit of India?', 'Capital of Mongolia?'];
-    var answers = ['Whale', 'Jet', 'Mango', 'Ulaanbaatar'];
+    const questions = ['Biggest Mammal?', 'Fastest vehicle?', 'Ocean name?', 'King of Jungle?'];
+    const answers = ['WHALE', 'JET', 'PACIFIC', 'LION'];
 
     let selectedAnswer = "";
-    let displayArray = []; // Дэлгэцэн дээр харагдах (_)
+    let displayArray = [];
     let mistakes = 0;
-    const maxMistakes = 6;
-    let answerLetters = []; // Хариултын үсгүүдийг массив болгож хадгалах
+    const canvas = document.getElementById('hangmanCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Canvas зурах функцийг бэлдэх
+    function drawLine(fromX, fromY, toX, toY) {
+        ctx.beginPath();
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.stroke();
+    }
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#34495e';
+        // Суурь дүүжлүүр зурах
+        drawLine(20, 180, 180, 180); // Суурь
+        drawLine(50, 180, 50, 20);   // Босоо мод
+        drawLine(50, 20, 130, 20);   // Хөндлөн мод
+        drawLine(130, 20, 130, 40);  // Олс
+    }
+
+    function drawHangman(step) {
+        ctx.lineWidth = 3;
+        switch(step) {
+            case 1: // Толгой
+                ctx.beginPath();
+                ctx.arc(130, 55, 15, 0, Math.PI * 2);
+                ctx.stroke();
+                break;
+            case 2: // Их бие
+                drawLine(130, 70, 130, 120);
+                break;
+            case 3: // Зүүн гар
+                drawLine(130, 80, 100, 100);
+                break;
+            case 4: // Баруун гар
+                drawLine(130, 80, 160, 100);
+                break;
+            case 5: // Зүүн хөл
+                drawLine(130, 120, 100, 150);
+                break;
+            case 6: // Баруун хөл
+                drawLine(130, 120, 160, 150);
+                break;
+        }
+    }
 
     function startGame() {
-        // Тоглоомыг шинээр эхлүүлэх тохиргоо
         let randomIndex = Math.floor(Math.random() * questions.length);
-        let selectedQuestion = questions[randomIndex];
         selectedAnswer = answers[randomIndex].toUpperCase();
-        
-        answerLetters = selectedAnswer.split(''); // Үгийг үсэг бүрээр нь салгах
-        displayArray = Array(answerLetters.length).fill('_');
+        displayArray = Array(selectedAnswer.length).fill('_');
         mistakes = 0;
 
-        // Дэлгэцийг шинэчлэх
+        clearCanvas();
         document.getElementById('game-area').style.display = 'block';
-        document.getElementById('question-display').innerText = "Асуулт: " + selectedQuestion;
-        document.getElementById('mistakes').innerText = mistakes;
-        document.getElementById('start-btn').innerText = "Дахин эхлэх";
+        document.getElementById('question-display').innerText = "Question: " + questions[randomIndex];
+        document.getElementById('start-btn').innerText = "RESTART";
         
         renderAnswer();
         createButtons();
     }
 
-    // Үсгүүдийг дэлгэцэнд зурах
     function renderAnswer() {
         document.getElementById('answer-display').innerText = displayArray.join(' ');
     }
 
-    // A-Z хүртэлх товчлуур үүсгэх
     function createButtons() {
         const container = document.getElementById('letters-container');
         container.innerHTML = '';
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
-        
-        alphabet.forEach(letter => {
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(letter => {
             let btn = document.createElement('button');
             btn.innerText = letter;
             btn.className = 'letter-btn';
-            btn.onclick = () => handleGuess(letter);
+            btn.onclick = () => handleGuess(letter, btn);
             container.appendChild(btn);
         });
     }
 
-    // Үсэг дарах үед ажиллах логик
-    function handleGuess(letter) {
-        // Таны хүссэнээр: Ижил үсэг байсан ч эхнээс нь дарааллаар эсвэл нэг нэгээр нь таана
-        // Эхний олдоогүй байгаа харгалзах үсгийг хайх
-        let foundIndex = -1;
-        for(let i = 0; i < answerLetters.length; i++) {
-            if(answerLetters[i] === letter && displayArray[i] === '_') {
-                foundIndex = i;
-                break; // Хамгийн эхний тааралдсан (_) байрлалыг олмогц зогсоно
+    function handleGuess(letter, btn) {
+        let found = false;
+        // Эхний олдоогүй байгаа харгалзах үсгийг хайх (таны заавраар)
+        for(let i = 0; i < selectedAnswer.length; i++) {
+            if(selectedAnswer[i] === letter && displayArray[i] === '_') {
+                displayArray[i] = letter;
+                found = true;
+                break; // Зөвхөн нэг үсгийг нээнэ
             }
         }
 
-        if (foundIndex !== -1) {
-            // Зөв таавал тухайн байрлалын зураасыг үсгээр солино
-            displayArray[foundIndex] = letter;
+        if (found) {
             renderAnswer();
-            checkWin();
-        } else {
-            // Буруу таавал (эсвэл тухайн үсэг аль хэдийн бүгд таагдсан бол)
-            mistakes++;
-            document.getElementById('mistakes').innerText = mistakes;
-            if (mistakes >= maxMistakes) {
-                alert("Тоглоом дууслаа! Хариулт нь: " + selectedAnswer);
-                startGame();
+            if (!displayArray.includes('_')) {
+                setTimeout(() => alert("YOU WIN! 🎉"), 200);
             }
-        }
-    }
-
-    function checkWin() {
-        if (!displayArray.includes('_')) {
-            setTimeout(() => {
-                alert("Баяр хүргэе! Та үгийг оллоо.");
-                startGame();
-            }, 200);
+        } else {
+            mistakes++;
+            drawHangman(mistakes);
+            if (mistakes >= 6) {
+                setTimeout(() => alert("GAME OVER! The word was: " + selectedAnswer), 200);
+            }
         }
     }
 </script>
