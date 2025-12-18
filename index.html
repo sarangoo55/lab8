@@ -16,7 +16,6 @@
             margin: 0; 
         }
 
-        /* Эхлэх товчлуур */
         #start-btn { 
             padding: 20px 50px; 
             font-size: 24px; 
@@ -30,7 +29,6 @@
         }
         #start-btn:hover { background: #2ecc71; transform: scale(1.1); }
 
-        /* Тоглоомын талбай - Эхлээд нууцлагдсан байна */
         #game-container { 
             display: none; 
             background: white; 
@@ -72,7 +70,6 @@
     let mistakes = 0;
     
     function startGame() {
-        // Эхлэх товчийг нууж, тоглоомын талбайг гаргаж ирэх
         document.getElementById('start-btn').style.display = 'none';
         document.getElementById('game-container').style.display = 'block';
 
@@ -98,21 +95,21 @@
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.lineWidth = 4; ctx.strokeStyle = '#34495e';
-        drawLine(20, 180, 180, 180); // Суурь
-        drawLine(50, 180, 50, 20);   // Босоо мод
-        drawLine(50, 20, 130, 20);   // Хөндлөн мод
-        drawLine(130, 20, 130, 40);  // Олс
+        drawLine(20, 180, 180, 180); 
+        drawLine(50, 180, 50, 20);   
+        drawLine(50, 20, 130, 20);   
+        drawLine(130, 20, 130, 40);  
     }
 
     function drawHangman(step) {
         ctx.lineWidth = 3;
         switch(step) {
-            case 1: ctx.beginPath(); ctx.arc(130, 55, 15, 0, Math.PI * 2); ctx.stroke(); break; // Толгой
-            case 2: drawLine(130, 70, 130, 120); break; // Бие
-            case 3: drawLine(130, 80, 100, 100); break; // Зүүн гар
-            case 4: drawLine(130, 80, 160, 100); break; // Баруун гар
-            case 5: drawLine(130, 120, 100, 150); break; // Зүүн хөл
-            case 6: drawLine(130, 120, 160, 150); break; // Баруун хөл
+            case 1: ctx.beginPath(); ctx.arc(130, 55, 15, 0, Math.PI * 2); ctx.stroke(); break; 
+            case 2: drawLine(130, 70, 130, 120); break;
+            case 3: drawLine(130, 80, 100, 100); break; 
+            case 4: drawLine(130, 80, 160, 100); break; 
+            case 5: drawLine(130, 120, 100, 150); break; 
+            case 6: drawLine(130, 120, 160, 150); break; 
         }
     }
 
@@ -145,7 +142,7 @@
         if (found) {
             renderAnswer();
             if (!displayArray.includes('_')) {
-                setTimeout(() => { alert("БАЯР ХҮРГЭЕ! 🎉"); location.reload(); }, 200);
+                setTimeout(() => { alert("БАЯР ХҮРГЭЕ!"); location.reload(); }, 200);
             }
         } else {
             mistakes++;
